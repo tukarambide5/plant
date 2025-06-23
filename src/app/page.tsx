@@ -5,21 +5,16 @@ import Link from 'next/link';
 import { useAuth } from '@/context/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
-import { getPlantDetails, type GetPlantDetailsOutput } from '@/ai/flows/get-plant-details';
-import { generateCareGuide, type GenerateCareGuideOutput } from '@/ai/flows/generate-care-guide';
+import { getPlantDetails } from '@/ai/flows/get-plant-details';
+import { generateCareGuide } from '@/ai/flows/generate-care-guide';
+import { supabase } from '@/lib/supabase';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
-
-export type PlantResult = {
-  imageDataUri: string;
-  plantName: string;
-  plantDetails: GetPlantDetailsOutput;
-  careGuide: GenerateCareGuideOutput;
-};
+import type { PlantResult } from '@/types';
 
 export default function Home() {
   const { user } = useAuth();
@@ -29,6 +24,15 @@ export default function Home() {
   const { toast } = useToast();
 
   const handleImageSelect = async (file: File) => {
+    if (!user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'You must be logged in to identify plants.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
     setResult(null);
     setError(null);
@@ -56,12 +60,32 @@ export default function Home() {
         });
         if (!careGuide) throw new Error('Could not generate a care guide.');
 
-        setResult({
+        const newResult: PlantResult = {
           imageDataUri,
           plantName: plantDetails.name,
           plantDetails,
           careGuide,
+        };
+        setResult(newResult);
+
+        // Step 4: Save to Supabase
+        const { error: insertError } = await supabase.from('identifications').insert({
+          user_id: user.id,
+          plant_name: newResult.plantName,
+          plant_details: newResult.plantDetails,
+          care_guide: newResult.careGuide,
+          image_data_uri: newResult.imageDataUri,
         });
+
+        if (insertError) {
+          console.error('Error saving identification to Supabase:', insertError);
+          // Optional: Show a non-blocking toast message about save failure
+          toast({
+            title: 'Could not save to My Garden',
+            description: 'Your identification was successful but we failed to save it to your collection.',
+            variant: 'destructive',
+          });
+        }
 
       } catch (e: any) {
         const errorMessage = e.message || 'An unexpected error occurred.';

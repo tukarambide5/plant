@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout, Sun, Thermometer, Droplets, Layers, Flower2 } from 'lucide-react';
-import type { PlantResult } from '@/app/page';
+import type { PlantResult } from '@/types';
 import IconWithLabel from './icon-with-label';
 
 type PlantDisplayProps = {

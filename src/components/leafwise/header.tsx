@@ -1,6 +1,6 @@
 'use client';
 
-import { Sprout, LogOut } from 'lucide-react';
+import { Sprout, LogOut, BookMarked } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -52,10 +52,17 @@ export default function Header() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
+               <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/my-garden">
+                  <BookMarked className="mr-2 h-4 w-4" />
+                  <span>My Garden</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                  <p className="text-sm font-medium leading-none truncate">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{email}</p>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
