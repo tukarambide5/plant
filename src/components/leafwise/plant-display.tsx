@@ -2,6 +2,14 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout, Sun, Thermometer, Droplets, Layers, Flower2 } from 'lucide-react';
 import type { PlantResult } from '@/app/page';
 import IconWithLabel from './icon-with-label';
@@ -41,6 +49,14 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
 
   const { imageDataUri, plantName, plantDetails, careGuide } = result;
 
+  const careItems = [
+    { icon: Droplets, label: "Watering", points: careGuide.watering },
+    { icon: Sun, label: "Sunlight", points: careGuide.sunlight },
+    { icon: Thermometer, label: "Temperature", points: careGuide.temperature },
+    { icon: Layers, label: "Soil", points: careGuide.soil },
+    { icon: Flower2, label: "Fertilizing", points: careGuide.fertilizing },
+  ];
+
   return (
     <div className="grid gap-8 animate-in fade-in-50 duration-500">
       <Card className="overflow-hidden shadow-lg">
@@ -75,12 +91,34 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
             Care Guide
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-6 pt-2">
-          <IconWithLabel icon={Droplets} label="Watering" value={careGuide.watering} />
-          <IconWithLabel icon={Sun} label="Sunlight" value={careGuide.sunlight} />
-          <IconWithLabel icon={Thermometer} label="Temperature" value={careGuide.temperature} />
-          <IconWithLabel icon={Layers} label="Soil" value={careGuide.soil} />
-          <IconWithLabel icon={Flower2} label="Fertilizing" value={careGuide.fertilizing} />
+        <CardContent className="pt-2 text-sm">
+           <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[150px] font-semibold text-foreground">Care Aspect</TableHead>
+                <TableHead className="font-semibold text-foreground">Recommendations</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {careItems.map(({ icon: Icon, label, points }) => (
+                <TableRow key={label}>
+                  <TableCell className="font-medium align-top">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-5 w-5 text-accent flex-shrink-0" />
+                      <span>{label}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                      {points.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
@@ -127,17 +165,20 @@ const LoadingSkeleton = () => (
       <CardHeader>
         <Skeleton className="h-8 w-1/3" />
       </CardHeader>
-      <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-6 pt-2">
-        {[...Array(5)].map((_, i) => (
-          <div className="flex items-start gap-3" key={i}>
-            <Skeleton className="h-5 w-5 rounded-full mt-1" />
-            <div className="w-full space-y-2">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-4 w-2/3" />
-              <Skeleton className="h-4 w-1/2" />
+      <CardContent className="pt-2">
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div className="flex items-start gap-4" key={i}>
+              <div className="w-[120px] space-y-2">
+                <Skeleton className="h-5 w-1/3" />
+              </div>
+              <div className="w-full space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </CardContent>
     </Card>
   </div>

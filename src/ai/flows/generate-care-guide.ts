@@ -20,11 +20,11 @@ const GenerateCareGuideInputSchema = z.object({
 export type GenerateCareGuideInput = z.infer<typeof GenerateCareGuideInputSchema>;
 
 const GenerateCareGuideOutputSchema = z.object({
-  watering: z.string().describe('Detailed watering instructions for the plant, including frequency and amount.'),
-  sunlight: z.string().describe('Specific sunlight requirements for the plant (e.g., direct, indirect, low light).'),
-  temperature: z.string().describe('Optimal temperature range and humidity preferences for the plant.'),
-  soil: z.string().describe('Recommended soil composition and drainage needs for the plant.'),
-  fertilizing: z.string().describe('Fertilizing schedule and type of fertilizer to use for the plant.'),
+  watering: z.array(z.string()).describe('A list of bullet points for watering instructions for the plant, including frequency and amount.'),
+  sunlight: z.array(z.string()).describe('A list of bullet points for specific sunlight requirements for the plant (e.g., direct, indirect, low light).'),
+  temperature: z.array(z.string()).describe('A list of bullet points for optimal temperature range and humidity preferences for the plant.'),
+  soil: z.array(z.string()).describe('A list of bullet points for recommended soil composition and drainage needs for the plant.'),
+  fertilizing: z.array(z.string()).describe('A list of bullet points for fertilizing schedule and type of fertilizer to use for the plant.'),
 });
 export type GenerateCareGuideOutput = z.infer<typeof GenerateCareGuideOutputSchema>;
 
@@ -37,6 +37,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateCareGuideInputSchema},
   output: {schema: GenerateCareGuideOutputSchema},
   prompt: `You are an expert horticulturist. For the given plant, provide a personalized care guide with specific instructions for each category.
+For each category, provide the instructions as a list of bullet points.
 
 Plant Name: {{{plantName}}}
 Category: {{{category}}}
