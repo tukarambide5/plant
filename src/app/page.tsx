@@ -79,10 +79,9 @@ export default function Home() {
 
         if (insertError) {
           console.error('Error saving identification to Supabase:', insertError);
-          // Optional: Show a non-blocking toast message about save failure
           toast({
             title: 'Could not save to My Garden',
-            description: 'Your identification was successful but we failed to save it to your collection.',
+            description: `Your identification was successful but we failed to save it. Error: ${insertError.message}`,
             variant: 'destructive',
           });
         }
