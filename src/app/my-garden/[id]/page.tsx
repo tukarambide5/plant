@@ -35,7 +35,7 @@ export default function GardenDetailPage({ params }: { params: { id: string } })
 
     if (error) {
       console.error('Error fetching identification details:', error);
-      setError('Could not find this plant in your garden, or you do not have permission to view it.');
+      setError(`Could not find this plant in your garden. Error: ${error.message}`);
       setIdentification(null);
     } else {
       setIdentification(data as Identification);

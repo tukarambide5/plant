@@ -63,7 +63,7 @@ export default function MyGardenPage() {
 
       if (error) {
         console.error('Error fetching identifications:', error);
-        setError('Failed to load your garden. Please try again later.');
+        setError(`Failed to load your garden. Error: ${error.message}`);
       } else {
         setIdentifications(data as Identification[]);
       }
