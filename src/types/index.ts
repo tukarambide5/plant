@@ -22,4 +22,8 @@ export type Identification = {
   plant_details: GetPlantDetailsOutput;
   care_guide: GenerateCareGuideOutput;
   image_data_uri: string;
+  watering_frequency: number | null;
+  last_watered_at: string | null;
+  fertilizing_frequency: number | null;
+  last_fertilized_at: string | null;
 };
