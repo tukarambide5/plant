@@ -49,6 +49,8 @@ export default function Home() {
         let message = `Failed to upload image: ${uploadError.message}`;
         if (uploadError.message.toLowerCase().includes('bucket not found')) {
             message = "Failed to upload image. Please ensure you have created a public bucket named 'plant-images' in your Supabase project's Storage section.";
+        } else if (uploadError.message.toLowerCase().includes('violates row-level security policy')) {
+            message = "Failed to upload image due to a security policy violation. Please ensure the Storage policies in your Supabase project are correctly configured to allow uploads for authenticated users into a folder named after their user ID.";
         }
         throw new Error(message);
       }
