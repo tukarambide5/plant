@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/context/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails, type GetPlantDetailsOutput } from '@/ai/flows/get-plant-details';
@@ -9,6 +11,8 @@ import { generateCareGuide, type GenerateCareGuideOutput } from '@/ai/flows/gene
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
+import { Button } from '@/components/ui/button';
+import { Lock } from 'lucide-react';
 
 export type PlantResult = {
   imageDataUri: string;
@@ -18,6 +22,7 @@ export type PlantResult = {
 };
 
 export default function Home() {
+  const { user } = useAuth();
   const [result, setResult] = useState<PlantResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +101,20 @@ export default function Home() {
             </p>
           </section>
           
-          <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} />
+          {user ? (
+            <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} />
+          ) : (
+            <div className="text-center py-10 border border-dashed rounded-lg bg-secondary/30 flex flex-col items-center justify-center">
+              <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-semibold text-foreground">Login to Get Started</h3>
+              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+                Please log in to identify plants and access your personalized care guides.
+              </p>
+              <Button asChild className="mt-6">
+                <Link href="/login">Login</Link>
+              </Button>
+            </div>
+          )}
 
           <div className="mt-4">
             <PlantDisplay isLoading={isLoading} result={result} error={error} />
