@@ -114,7 +114,7 @@ export default function MyGardenPage() {
                       <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-1">
                         <div className="relative aspect-square w-full">
                           <Image
-                            src={plant.image_data_uri}
+                            src={plant.image_url}
                             alt={`Image of ${plant.plant_name}`}
                             fill
                             className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"

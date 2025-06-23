@@ -47,7 +47,7 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
     );
   }
 
-  const { imageDataUri, plantName, plantDetails, careGuide } = result;
+  const { imageUrl, plantName, plantDetails, careGuide } = result;
 
   const careItems = [
     { icon: Droplets, label: "Watering", points: careGuide.watering },
@@ -63,7 +63,7 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
         <div className="grid md:grid-cols-2">
           <div className="relative aspect-square bg-secondary">
             <Image
-              src={imageDataUri}
+              src={imageUrl}
               alt={plantName}
               fill
               className="object-cover"

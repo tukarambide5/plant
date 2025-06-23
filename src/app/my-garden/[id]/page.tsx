@@ -56,7 +56,7 @@ export default function GardenDetailPage({ params }: { params: { id: string } })
   let plantResult: PlantResult | null = null;
   if (identification) {
     plantResult = {
-      imageDataUri: identification.image_data_uri,
+      imageUrl: identification.image_url,
       plantName: identification.plant_name,
       plantDetails: identification.plant_details,
       careGuide: identification.care_guide,

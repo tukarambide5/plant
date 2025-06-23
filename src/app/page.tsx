@@ -16,6 +16,17 @@ import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import type { PlantResult } from '@/types';
 
+// Helper to read file as data URI
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+
 export default function Home() {
   const { user } = useAuth();
   const [result, setResult] = useState<PlantResult | null>(null);
@@ -37,77 +48,79 @@ export default function Home() {
     setResult(null);
     setError(null);
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const imageDataUri = reader.result as string;
+    let filePath = '';
 
-      try {
-        // Step 1: Identify Plant
-        const { plantSpecies } = await identifyPlant({ photoDataUri: imageDataUri });
-        if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) throw new Error('Could not identify the plant. Please try another image.');
-        
-        // Step 2: Get Plant Details
-        const plantDetails = await getPlantDetails({ plantName: plantSpecies });
-        if (!plantDetails) throw new Error('Could not retrieve plant details.');
-        
-        // Step 3: Generate Care Guide
-        const careGuide = await generateCareGuide({
-          plantName: plantDetails.name,
-          category: plantDetails.category,
-          nativeHabitat: plantDetails.nativeHabitat,
-          commonUses: plantDetails.commonUses,
-        });
-        if (!careGuide) throw new Error('Could not generate a care guide.');
+    try {
+      const imageDataUri = await fileToDataUri(file);
 
-        const newResult: PlantResult = {
-          imageDataUri,
-          plantName: plantDetails.name,
-          plantDetails,
-          careGuide,
-        };
-        setResult(newResult);
+      // Step 1: Identify Plant (using data URI)
+      const { plantSpecies } = await identifyPlant({ photoDataUri: imageDataUri });
+      if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) throw new Error('Could not identify the plant. Please try another image.');
+      
+      // Step 2: Get Plant Details
+      const plantDetails = await getPlantDetails({ plantName: plantSpecies });
+      if (!plantDetails) throw new Error('Could not retrieve plant details.');
+      
+      // Step 3: Generate Care Guide
+      const careGuide = await generateCareGuide({
+        plantName: plantDetails.name,
+        category: plantDetails.category,
+        nativeHabitat: plantDetails.nativeHabitat,
+        commonUses: plantDetails.commonUses,
+      });
+      if (!careGuide) throw new Error('Could not generate a care guide.');
 
-        // Step 4: Save to Supabase
-        const { error: insertError } = await supabase.from('identifications').insert({
-          user_id: user.id,
-          plant_name: newResult.plantName,
-          plant_details: newResult.plantDetails,
-          care_guide: newResult.careGuide,
-          image_data_uri: newResult.imageDataUri,
-        });
+      // Step 4: Upload image to Supabase Storage
+      const fileExtension = file.name.split('.').pop() || 'png';
+      filePath = `${user.id}/${Date.now()}.${fileExtension}`;
+      const { error: uploadError } = await supabase.storage.from('plant-images').upload(filePath, file);
 
-        if (insertError) {
-          console.error('Error saving identification to Supabase:', insertError);
-          toast({
-            title: 'Could not save to My Garden',
-            description: `Your identification was successful but we failed to save it. Error: ${insertError.message}`,
-            variant: 'destructive',
-          });
-        }
-
-      } catch (e: any) {
-        const errorMessage = e.message || 'An unexpected error occurred.';
-        setError(errorMessage);
-        toast({
-          title: 'Error',
-          description: errorMessage,
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
+      if (uploadError) {
+        throw new Error(`Failed to upload image: ${uploadError.message}`);
       }
-    };
-    reader.onerror = () => {
-      const errorMessage = 'Failed to read the image file.';
+
+      const { data: { publicUrl } } = supabase.storage.from('plant-images').getPublicUrl(filePath);
+
+      if (!publicUrl) {
+        throw new Error('Could not get public URL for the uploaded image.');
+      }
+      
+      const newResult: PlantResult = {
+        imageUrl: publicUrl,
+        plantName: plantDetails.name,
+        plantDetails,
+        careGuide,
+      };
+      setResult(newResult);
+
+      // Step 5: Save to Supabase database
+      const { error: insertError } = await supabase.from('identifications').insert({
+        user_id: user.id,
+        plant_name: newResult.plantName,
+        plant_details: newResult.plantDetails,
+        care_guide: newResult.careGuide,
+        image_url: newResult.imageUrl,
+      });
+
+      if (insertError) {
+        throw new Error(`Your identification was successful but we failed to save it. Error: ${insertError.message}`);
+      }
+
+    } catch (e: any) {
+      const errorMessage = e.message || 'An unexpected error occurred.';
       setError(errorMessage);
       toast({
         title: 'Error',
         description: errorMessage,
         variant: 'destructive',
       });
+       // If an error occurred after the image was uploaded, try to remove it.
+      if (filePath) {
+        await supabase.storage.from('plant-images').remove([filePath]);
+      }
+    } finally {
       setIsLoading(false);
-    };
+    }
   };
 
   return (

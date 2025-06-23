@@ -5,7 +5,7 @@ import type { GenerateCareGuideOutput } from '@/ai/flows/generate-care-guide';
  * Represents the result of a plant identification process, used for displaying on the UI.
  */
 export type PlantResult = {
-  imageDataUri: string;
+  imageUrl: string;
   plantName: string;
   plantDetails: GetPlantDetailsOutput;
   careGuide: GenerateCareGuideOutput;
@@ -21,7 +21,7 @@ export type Identification = {
   plant_name: string;
   plant_details: GetPlantDetailsOutput;
   care_guide: GenerateCareGuideOutput;
-  image_data_uri: string;
+  image_url: string;
   watering_frequency: number | null;
   last_watered_at: string | null;
   fertilizing_frequency: number | null;
