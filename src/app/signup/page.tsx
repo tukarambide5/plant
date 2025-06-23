@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -27,15 +27,15 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       router.push('/');
     } catch (error: any) {
       toast({
-        title: 'Login Failed',
+        title: 'Signup Failed',
         description: error.message,
         variant: 'destructive',
       });
@@ -74,11 +74,11 @@ export default function LoginPage() {
         </Link>
         <Card className="w-full max-w-sm shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your account.</CardDescription>
+            <CardTitle className="text-2xl">Create an Account</CardTitle>
+            <CardDescription>Enter your details to get started.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSignup}>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -103,7 +103,7 @@ export default function LoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full mt-6" disabled={isFormLoading}>
-                {isLoading ? 'Logging in...' : 'Login with Email'}
+                {isLoading ? 'Creating Account...' : 'Sign Up with Email'}
               </Button>
             </form>
             <div className="relative mt-2">
@@ -122,9 +122,9 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex justify-center text-sm">
             <p className="text-muted-foreground">
-              Don't have an account?&nbsp;
-              <Link href="/signup" className="text-primary hover:underline font-medium">
-                Sign Up
+              Already have an account?&nbsp;
+              <Link href="/login" className="text-primary hover:underline font-medium">
+                Log In
               </Link>
             </p>
           </CardFooter>
