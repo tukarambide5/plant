@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails, type GetPlantDetailsOutput } from '@/ai/flows/get-plant-details';
-import { generateCareGuide } from '@/ai/flows/generate-care-guide';
+import { generateCareGuide, type GenerateCareGuideOutput } from '@/ai/flows/generate-care-guide';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -14,7 +14,7 @@ export type PlantResult = {
   imageDataUri: string;
   plantName: string;
   plantDetails: GetPlantDetailsOutput;
-  careGuide: string;
+  careGuide: GenerateCareGuideOutput;
 };
 
 export default function Home() {
@@ -43,7 +43,7 @@ export default function Home() {
         if (!plantDetails) throw new Error('Could not retrieve plant details.');
         
         // Step 3: Generate Care Guide
-        const { careGuide } = await generateCareGuide({
+        const careGuide = await generateCareGuide({
           plantName: plantDetails.name,
           category: plantDetails.category,
           nativeHabitat: plantDetails.nativeHabitat,
@@ -103,9 +103,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className="text-center p-4 text-muted-foreground text-sm">
-        <p>Powered by Gemini. Built with Next.js.</p>
-      </footer>
     </div>
   );
 }

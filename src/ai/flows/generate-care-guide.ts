@@ -20,7 +20,11 @@ const GenerateCareGuideInputSchema = z.object({
 export type GenerateCareGuideInput = z.infer<typeof GenerateCareGuideInputSchema>;
 
 const GenerateCareGuideOutputSchema = z.object({
-  careGuide: z.string().describe('A personalized care guide for the plant.'),
+  watering: z.string().describe('Detailed watering instructions for the plant, including frequency and amount.'),
+  sunlight: z.string().describe('Specific sunlight requirements for the plant (e.g., direct, indirect, low light).'),
+  temperature: z.string().describe('Optimal temperature range and humidity preferences for the plant.'),
+  soil: z.string().describe('Recommended soil composition and drainage needs for the plant.'),
+  fertilizing: z.string().describe('Fertilizing schedule and type of fertilizer to use for the plant.'),
 });
 export type GenerateCareGuideOutput = z.infer<typeof GenerateCareGuideOutputSchema>;
 
@@ -32,14 +36,13 @@ const prompt = ai.definePrompt({
   name: 'generateCareGuidePrompt',
   input: {schema: GenerateCareGuideInputSchema},
   output: {schema: GenerateCareGuideOutputSchema},
-  prompt: `You are an expert horticulturist. Generate a personalized care guide for the following plant, including specific instructions for watering, sunlight, temperature, and soil needs.
+  prompt: `You are an expert horticulturist. For the given plant, provide a personalized care guide with specific instructions for each category.
 
 Plant Name: {{{plantName}}}
 Category: {{{category}}}
 Native Habitat: {{{nativeHabitat}}}
 Common Uses: {{{commonUses}}}
-
-Care Guide:`,
+`,
 });
 
 const generateCareGuideFlow = ai.defineFlow(

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout } from 'lucide-react';
+import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout, Sun, Thermometer, Droplets, Layers, Flower2 } from 'lucide-react';
 import type { PlantResult } from '@/app/page';
 import IconWithLabel from './icon-with-label';
 
@@ -75,10 +75,12 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
             Care Guide
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="prose prose-stone dark:prose-invert max-w-none text-foreground whitespace-pre-wrap font-body">
-            {careGuide}
-          </div>
+        <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-6 pt-2">
+          <IconWithLabel icon={Droplets} label="Watering" value={careGuide.watering} />
+          <IconWithLabel icon={Sun} label="Sunlight" value={careGuide.sunlight} />
+          <IconWithLabel icon={Thermometer} label="Temperature" value={careGuide.temperature} />
+          <IconWithLabel icon={Layers} label="Soil" value={careGuide.soil} />
+          <IconWithLabel icon={Flower2} label="Fertilizing" value={careGuide.fertilizing} />
         </CardContent>
       </Card>
     </div>
@@ -125,12 +127,17 @@ const LoadingSkeleton = () => (
       <CardHeader>
         <Skeleton className="h-8 w-1/3" />
       </CardHeader>
-      <CardContent className="space-y-3">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
+      <CardContent className="grid sm:grid-cols-2 gap-x-8 gap-y-6 pt-2">
+        {[...Array(5)].map((_, i) => (
+          <div className="flex items-start gap-3" key={i}>
+            <Skeleton className="h-5 w-5 rounded-full mt-1" />
+            <div className="w-full space-y-2">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   </div>
