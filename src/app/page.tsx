@@ -76,7 +76,11 @@ export default function Home() {
       const { error: uploadError } = await supabase.storage.from('plant-images').upload(filePath, file);
 
       if (uploadError) {
-        throw new Error(`Failed to upload image: ${uploadError.message}`);
+        let message = `Failed to upload image: ${uploadError.message}`;
+        if (uploadError.message.toLowerCase().includes('bucket not found')) {
+            message = "Failed to upload image. Please ensure you have created a public bucket named 'plant-images' in your Supabase project's Storage section.";
+        }
+        throw new Error(message);
       }
 
       const { data: { publicUrl } } = supabase.storage.from('plant-images').getPublicUrl(filePath);
