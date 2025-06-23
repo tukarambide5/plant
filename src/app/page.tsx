@@ -1,104 +1,80 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/context/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
-import { supabase } from '@/lib/supabase';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
-import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
 import type { PlantResult } from '@/types';
 
 export default function Home() {
-  const { user } = useAuth();
   const [result, setResult] = useState<PlantResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleImageSelect = async (file: File) => {
-    if (!user) {
-      toast({
-        title: 'Authentication Required',
-        description: 'You must be logged in to identify plants.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsLoading(true);
     setResult(null);
     setError(null);
 
-    let filePath = '';
-
     try {
-      // Step 1: Upload image to Supabase Storage
-      const fileExtension = file.name.split('.').pop() || 'png';
-      filePath = `${user.id}/${Date.now()}.${fileExtension}`;
-      const { error: uploadError } = await supabase.storage.from('plant-images').upload(filePath, file);
+      // Step 1: Convert image to Data URI
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const photoDataUri = reader.result as string;
 
-      if (uploadError) {
-        let message = `Failed to upload image: ${uploadError.message}`;
-        if (uploadError.message.toLowerCase().includes('bucket not found')) {
-            message = "Failed to upload image. Please ensure you have created a public bucket named 'plant-images' in your Supabase project's Storage section.";
-        } else if (uploadError.message.toLowerCase().includes('violates row-level security policy')) {
-            message = "Failed to upload image due to a security policy violation. Please ensure the Storage policies in your Supabase project are correctly configured to allow uploads for authenticated users into a folder named after their user ID.";
+        try {
+          // Step 2: Identify Plant (using data URI)
+          const { plantSpecies } = await identifyPlant({ photoDataUri });
+          if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) {
+            throw new Error('Could not identify the plant. Please try another image.');
+          }
+
+          // Step 3: Get Plant Details
+          const plantDetails = await getPlantDetails({ plantName: plantSpecies });
+          if (!plantDetails) throw new Error('Could not retrieve plant details.');
+
+          // Step 4: Generate Care Guide
+          const careGuide = await generateCareGuide({
+            plantName: plantDetails.name,
+            category: plantDetails.category,
+            nativeHabitat: plantDetails.nativeHabitat,
+            commonUses: plantDetails.commonUses,
+          });
+          if (!careGuide) throw new Error('Could not generate a care guide.');
+
+          const newResult: PlantResult = {
+            imageUrl: photoDataUri, // Use data URI for display
+            plantName: plantDetails.name,
+            plantDetails,
+            careGuide,
+          };
+          setResult(newResult);
+
+        } catch (e: any) {
+          const errorMessage = e.message || 'An unexpected error occurred during analysis.';
+          setError(errorMessage);
+          toast({
+            title: 'Error',
+            description: errorMessage,
+            variant: 'destructive',
+          });
+        } finally {
+          setIsLoading(false);
         }
-        throw new Error(message);
-      }
-
-      const { data: { publicUrl } } = supabase.storage.from('plant-images').getPublicUrl(filePath);
-
-      if (!publicUrl) {
-        throw new Error('Could not get public URL for the uploaded image.');
-      }
-      
-      // Step 2: Identify Plant (using public URL)
-      const { plantSpecies } = await identifyPlant({ photoUrl: publicUrl });
-      if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) throw new Error('Could not identify the plant. Please try another image.');
-      
-      // Step 3: Get Plant Details
-      const plantDetails = await getPlantDetails({ plantName: plantSpecies });
-      if (!plantDetails) throw new Error('Could not retrieve plant details.');
-      
-      // Step 4: Generate Care Guide
-      const careGuide = await generateCareGuide({
-        plantName: plantDetails.name,
-        category: plantDetails.category,
-        nativeHabitat: plantDetails.nativeHabitat,
-        commonUses: plantDetails.commonUses,
-      });
-      if (!careGuide) throw new Error('Could not generate a care guide.');
-
-      const newResult: PlantResult = {
-        imageUrl: publicUrl,
-        plantName: plantDetails.name,
-        plantDetails,
-        careGuide,
       };
-      setResult(newResult);
-
-      // Step 5: Save to Supabase database
-      const { error: insertError } = await supabase.from('identifications').insert({
-        user_id: user.id,
-        plant_name: newResult.plantName,
-        plant_details: newResult.plantDetails,
-        care_guide: newResult.careGuide,
-        image_url: publicUrl,
-      });
-
-      if (insertError) {
-        throw new Error(`Your identification was successful but we failed to save it. Error: ${insertError.message}`);
-      }
-
+      reader.onerror = () => {
+        const errorMessage = 'Failed to read the image file.';
+        setError(errorMessage);
+        toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+        setIsLoading(false);
+      };
     } catch (e: any) {
       const errorMessage = e.message || 'An unexpected error occurred.';
       setError(errorMessage);
@@ -107,11 +83,6 @@ export default function Home() {
         description: errorMessage,
         variant: 'destructive',
       });
-       // If an error occurred after the image was uploaded, try to remove it.
-      if (filePath) {
-        await supabase.storage.from('plant-images').remove([filePath]);
-      }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -129,21 +100,8 @@ export default function Home() {
               Identify any plant from a photo and get instant care guides to help your green friends thrive.
             </p>
           </section>
-          
-          {user ? (
-            <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} />
-          ) : (
-            <div className="text-center py-10 border border-dashed rounded-lg bg-secondary/30 flex flex-col items-center justify-center">
-              <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold text-foreground">Login to Get Started</h3>
-              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                Please log in to identify plants and access your personalized care guides.
-              </p>
-              <Button asChild className="mt-6">
-                <Link href="/login">Login</Link>
-              </Button>
-            </div>
-          )}
+
+          <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} />
 
           <div className="mt-4">
             <PlantDisplay isLoading={isLoading} result={result} error={error} />
