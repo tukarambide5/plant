@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,33 +29,45 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/');
-    } catch (error: any) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
       toast({
         title: 'Signup Failed',
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
+    } else if (data.user && !data.session) {
+       toast({
+        title: 'Check your email',
+        description: 'We sent a verification link to your email address.',
+      });
+      router.push('/login');
+    } else {
+      router.push('/');
+      router.refresh();
     }
+    
+    setIsLoading(false);
   };
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      router.push('/');
-    } catch (error: any) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+       options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+     if (error) {
       toast({
         title: 'Google Login Failed',
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
       setIsGoogleLoading(false);
     }
   };
@@ -100,6 +111,8 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isFormLoading}
+                  placeholder='••••••••'
+                  minLength={6}
                 />
               </div>
               <Button type="submit" className="w-full mt-6" disabled={isFormLoading}>

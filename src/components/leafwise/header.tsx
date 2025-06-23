@@ -3,8 +3,7 @@
 import { Sprout, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,9 +21,15 @@ export default function Header() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
     router.push('/login');
+    router.refresh();
   };
+  
+  const displayName = user?.user_metadata?.full_name ?? user?.email;
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const email = user?.email;
+  const fallbackInitial = displayName?.charAt(0).toUpperCase() ?? 'U';
 
   return (
     <header className="py-4 px-4 md:px-6 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
@@ -40,8 +45,8 @@ export default function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer h-10 w-10">
-                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
-                <AvatarFallback>{user.displayName?.charAt(0) ?? user.email?.charAt(0) ?? 'U'}</AvatarFallback>
+                <AvatarImage src={avatarUrl} alt={displayName ?? 'User'} />
+                <AvatarFallback>{fallbackInitial}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -49,8 +54,8 @@ export default function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{email}</p>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
