@@ -5,22 +5,27 @@ import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
+import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
-import type { PlantResult } from '@/types';
+import ChatAssistant from '@/components/leafwise/chat-assistant';
+import type { PlantResult, ChatMessage } from '@/types';
 
 export default function Home() {
   const [result, setResult] = useState<PlantResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   const handleImageSelect = async (file: File) => {
     setIsLoading(true);
     setResult(null);
     setError(null);
+    setChatMessages([]);
 
     try {
       // Step 1: Convert image to Data URI
@@ -86,6 +91,34 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+  
+  const handleSendMessage = async (message: string) => {
+    if (!result) return;
+
+    setIsChatLoading(true);
+    const newUserMessage: ChatMessage = { role: 'user', content: message };
+    setChatMessages(prev => [...prev, newUserMessage]);
+
+    try {
+        const { answer } = await chatWithAssistant({
+            plantName: result.plantName,
+            question: message,
+        });
+
+        const assistantMessage: ChatMessage = { role: 'assistant', content: answer };
+        setChatMessages(prev => [...prev, assistantMessage]);
+    } catch (e: any) {
+        const errorMessage = e.message || "The chat assistant isn't available right now.";
+        toast({
+            title: 'Chat Error',
+            description: errorMessage,
+            variant: 'destructive',
+        });
+        setChatMessages(prev => prev.slice(0, prev.length - 1));
+    } finally {
+        setIsChatLoading(false);
+    }
+};
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -105,6 +138,17 @@ export default function Home() {
 
           <div className="mt-4">
             <PlantDisplay isLoading={isLoading} result={result} error={error} />
+
+            {result && !isLoading && !error && (
+              <div className="mt-8">
+                <ChatAssistant
+                  plantName={result.plantName}
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                  isLoading={isChatLoading}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>

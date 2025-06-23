@@ -10,3 +10,11 @@ export type PlantResult = {
   plantDetails: GetPlantDetailsOutput;
   careGuide: GenerateCareGuideOutput;
 };
+
+/**
+ * Represents a single message in the chat conversation.
+ */
+export type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
