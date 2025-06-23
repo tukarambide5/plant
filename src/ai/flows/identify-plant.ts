@@ -4,7 +4,7 @@
  * @fileOverview This file defines a Genkit flow for identifying plant species from an image.
  *
  * - identifyPlant - The main function to trigger the plant identification flow.
- * - IdentifyPlantInput - The input type for the identifyPlant function, which includes the image data URI.
+ * - IdentifyPlantInput - The input type for the identifyPlant function, which includes the public image URL.
  * - IdentifyPlantOutput - The output type for the identifyPlant function, providing the identified plant species.
  */
 
@@ -12,11 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const IdentifyPlantInputSchema = z.object({
-  photoDataUri: z
+  photoUrl: z
     .string()
-    .describe(
-      'A photo of a plant, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'      
-    ),
+    .url()
+    .describe('A public URL of a photo of a plant.'),
 });
 export type IdentifyPlantInput = z.infer<typeof IdentifyPlantInputSchema>;
 
@@ -35,7 +34,7 @@ const identifyPlantPrompt = ai.definePrompt({
   output: {schema: IdentifyPlantOutputSchema},
   prompt: `You are an expert botanist. Please identify the plant species in the image provided.
 
-  Image: {{media url=photoDataUri}}
+  Image: {{media url=photoUrl}}
   \n
   Respond with just the plant species.`, // Just respond with the plant species, nothing else
 });

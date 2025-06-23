@@ -16,17 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import type { PlantResult } from '@/types';
 
-// Helper to read file as data URI
-const fileToDataUri = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
-
-
 export default function Home() {
   const { user } = useAuth();
   const [result, setResult] = useState<PlantResult | null>(null);
@@ -51,26 +40,7 @@ export default function Home() {
     let filePath = '';
 
     try {
-      const imageDataUri = await fileToDataUri(file);
-
-      // Step 1: Identify Plant (using data URI)
-      const { plantSpecies } = await identifyPlant({ photoDataUri: imageDataUri });
-      if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) throw new Error('Could not identify the plant. Please try another image.');
-      
-      // Step 2: Get Plant Details
-      const plantDetails = await getPlantDetails({ plantName: plantSpecies });
-      if (!plantDetails) throw new Error('Could not retrieve plant details.');
-      
-      // Step 3: Generate Care Guide
-      const careGuide = await generateCareGuide({
-        plantName: plantDetails.name,
-        category: plantDetails.category,
-        nativeHabitat: plantDetails.nativeHabitat,
-        commonUses: plantDetails.commonUses,
-      });
-      if (!careGuide) throw new Error('Could not generate a care guide.');
-
-      // Step 4: Upload image to Supabase Storage
+      // Step 1: Upload image to Supabase Storage
       const fileExtension = file.name.split('.').pop() || 'png';
       filePath = `${user.id}/${Date.now()}.${fileExtension}`;
       const { error: uploadError } = await supabase.storage.from('plant-images').upload(filePath, file);
@@ -89,6 +59,23 @@ export default function Home() {
         throw new Error('Could not get public URL for the uploaded image.');
       }
       
+      // Step 2: Identify Plant (using public URL)
+      const { plantSpecies } = await identifyPlant({ photoUrl: publicUrl });
+      if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) throw new Error('Could not identify the plant. Please try another image.');
+      
+      // Step 3: Get Plant Details
+      const plantDetails = await getPlantDetails({ plantName: plantSpecies });
+      if (!plantDetails) throw new Error('Could not retrieve plant details.');
+      
+      // Step 4: Generate Care Guide
+      const careGuide = await generateCareGuide({
+        plantName: plantDetails.name,
+        category: plantDetails.category,
+        nativeHabitat: plantDetails.nativeHabitat,
+        commonUses: plantDetails.commonUses,
+      });
+      if (!careGuide) throw new Error('Could not generate a care guide.');
+
       const newResult: PlantResult = {
         imageUrl: publicUrl,
         plantName: plantDetails.name,
