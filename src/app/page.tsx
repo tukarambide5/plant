@@ -92,7 +92,7 @@ export default function Home() {
         plant_name: newResult.plantName,
         plant_details: newResult.plantDetails,
         care_guide: newResult.careGuide,
-        image_url: newResult.imageUrl,
+        image_url: publicUrl,
       });
 
       if (insertError) {
