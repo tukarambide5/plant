@@ -7,23 +7,25 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 type ImageUploaderProps = {
-  onImageSelect: (file: File) => void;
+  onImageSelect: (files: FileList) => void;
   isLoading: boolean;
+  multiple?: boolean;
 };
 
-export default function ImageUploader({ onImageSelect, isLoading }: ImageUploaderProps) {
+export default function ImageUploader({ onImageSelect, isLoading, multiple = false }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileSelect = (file: File | null | undefined) => {
-    if (file && !isLoading) {
-      if (file.type.startsWith('image/')) {
-        onImageSelect(file);
+  const handleFileSelect = (files: FileList | null) => {
+    if (files && files.length > 0 && !isLoading) {
+      const allImages = Array.from(files).every(file => file.type.startsWith('image/'));
+      if (allImages) {
+        onImageSelect(files);
       } else {
         toast({
           title: 'Invalid File Type',
-          description: 'Please select an image file.',
+          description: 'Please select only image files.',
           variant: 'destructive',
         });
       }
@@ -31,7 +33,7 @@ export default function ImageUploader({ onImageSelect, isLoading }: ImageUploade
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleFileSelect(e.target.files?.[0]);
+    handleFileSelect(e.target.files);
     // Reset the input value to allow selecting the same file again
     if(e.target) e.target.value = '';
   };
@@ -57,7 +59,7 @@ export default function ImageUploader({ onImageSelect, isLoading }: ImageUploade
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    handleFileSelect(e.dataTransfer.files?.[0]);
+    handleFileSelect(e.dataTransfer.files);
   };
 
   const handleBrowseClick = () => {
@@ -83,6 +85,7 @@ export default function ImageUploader({ onImageSelect, isLoading }: ImageUploade
         className="hidden"
         onChange={handleInputChange}
         disabled={isLoading}
+        multiple={multiple}
       />
       <div className="flex flex-col items-center gap-4">
         {isLoading ? (
@@ -96,7 +99,7 @@ export default function ImageUploader({ onImageSelect, isLoading }: ImageUploade
             <div className="bg-primary/10 p-4 rounded-full">
               <UploadCloud className="h-8 w-8 text-primary" />
             </div>
-            <p className="font-semibold text-lg mt-2">Drag & drop an image here</p>
+            <p className="font-semibold text-lg mt-2">Drag & drop your image(s) here</p>
             <p className="text-muted-foreground">or</p>
             <Button onClick={handleBrowseClick} disabled={isLoading} className="font-bold">
               Browse Files

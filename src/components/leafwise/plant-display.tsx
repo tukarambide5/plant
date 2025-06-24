@@ -25,7 +25,7 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
     return <LoadingSkeleton />;
   }
 
-  if (error) {
+  if (error && !result) {
     return (
       <Alert variant="destructive" className="animate-in fade-in-25">
         <AlertTriangle className="h-4 w-4" />

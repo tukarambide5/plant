@@ -6,94 +6,90 @@ import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Layers, HeartPulse } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
 import ChatAssistant from '@/components/leafwise/chat-assistant';
+import PlantHealthChecker from '@/components/leafwise/plant-health-checker';
 import type { PlantResult, ChatMessage } from '@/types';
 
 export default function Home() {
-  const [result, setResult] = useState<PlantResult | null>(null);
+  const [results, setResults] = useState<PlantResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  const handleImageSelect = async (file: File) => {
+  const handleImageSelect = async (files: FileList) => {
     setIsLoading(true);
-    setResult(null);
+    setResults([]);
     setError(null);
     setChatMessages([]);
 
-    try {
-      // Step 1: Convert image to Data URI
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        const photoDataUri = reader.result as string;
-
-        try {
-          // Step 2: Identify Plant (using data URI)
-          const { plantName } = await identifyPlant({ photoDataUri });
-          if (!plantName || plantName.toLowerCase().includes("not a plant")) {
-            throw new Error('Could not identify the plant. Please try another image.');
-          }
-
-          // Step 3: Get Plant Details
-          const plantDetails = await getPlantDetails({ plantName: plantName });
-          if (!plantDetails) throw new Error('Could not retrieve plant details.');
-
-          // Step 4: Generate Care Guide
-          const careGuide = await generateCareGuide({
-            plantName: plantDetails.name,
-            category: plantDetails.category,
-            nativeHabitat: plantDetails.nativeHabitat,
-            commonUses: plantDetails.commonUses,
-          });
-          if (!careGuide) throw new Error('Could not generate a care guide.');
-
-          const newResult: PlantResult = {
-            imageUrl: photoDataUri, // Use data URI for display
-            plantName: plantDetails.name,
-            plantDetails,
-            careGuide,
-          };
-          setResult(newResult);
-
-        } catch (e: any) {
-          const errorMessage = e.message || 'An unexpected error occurred during analysis.';
-          setError(errorMessage);
-          toast({
-            title: 'Error',
-            description: errorMessage,
-            variant: 'destructive',
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      reader.onerror = () => {
-        const errorMessage = 'Failed to read the image file.';
-        setError(errorMessage);
-        toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
-        setIsLoading(false);
-      };
-    } catch (e: any) {
-      const errorMessage = e.message || 'An unexpected error occurred.';
-      setError(errorMessage);
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+    if (files.length === 0) {
       setIsLoading(false);
+      return;
     }
+    
+    const fileArray = Array.from(files);
+    let hasErrorOccurred = false;
+
+    for (const file of fileArray) {
+      if (hasErrorOccurred) break;
+
+      try {
+        const photoDataUri = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+
+        const { plantName } = await identifyPlant({ photoDataUri });
+        if (!plantName || plantName.toLowerCase().includes("not a plant")) {
+          throw new Error(`Could not identify the plant in "${file.name}". Please try another image.`);
+        }
+
+        const plantDetails = await getPlantDetails({ plantName: plantName });
+        if (!plantDetails) throw new Error('Could not retrieve plant details.');
+
+        const careGuide = await generateCareGuide({
+          plantName: plantDetails.name,
+          category: plantDetails.category,
+          nativeHabitat: plantDetails.nativeHabitat,
+          commonUses: plantDetails.commonUses,
+        });
+        if (!careGuide) throw new Error('Could not generate a care guide.');
+
+        const newResult: PlantResult = {
+          imageUrl: photoDataUri,
+          plantName: plantDetails.name,
+          plantDetails,
+          careGuide,
+        };
+        setResults(prev => [...prev, newResult]);
+
+      } catch (e: any) {
+        const errorMessage = e.message || 'An unexpected error occurred during analysis.';
+        setError(errorMessage);
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        hasErrorOccurred = true; // Stop processing further files
+      }
+    }
+    
+    setIsLoading(false);
   };
   
   const handleSendMessage = async (message: string) => {
-    if (!result) return;
+    if (results.length !== 1) return;
 
     setIsChatLoading(true);
     const newUserMessage: ChatMessage = { role: 'user', content: message };
@@ -101,7 +97,7 @@ export default function Home() {
 
     try {
         const { answer } = await chatWithAssistant({
-            plantName: result.plantName,
+            plantName: results[0].plantName,
             question: message,
         });
 
@@ -130,26 +126,53 @@ export default function Home() {
               Snap & Grow
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Identify any plant from a photo and get instant care guides to help your green friends thrive.
+              Your personal plant care assistant. Identify plants, check their health, and get expert advice.
             </p>
           </section>
 
-          <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} />
+          <Tabs defaultValue="identify" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="identify">
+                <Layers className="mr-2" />
+                Identify Plant(s)
+              </TabsTrigger>
+              <TabsTrigger value="health-check">
+                <HeartPulse className="mr-2" />
+                Health Check
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="identify" className="mt-6">
+              <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} multiple={true} />
+              <div className="mt-8 space-y-8">
+                {results.map((result, index) => (
+                  <PlantDisplay key={index} result={result} isLoading={false} error={null} />
+                ))}
 
-          <div className="mt-4">
-            <PlantDisplay isLoading={isLoading} result={result} error={error} />
+                {isLoading && results.length === 0 && (
+                   <PlantDisplay isLoading={true} result={null} error={null} />
+                )}
+                
+                {error && !isLoading && (
+                  <PlantDisplay isLoading={false} result={null} error={error} />
+                )}
 
-            {result && !isLoading && !error && (
-              <div className="mt-8">
-                <ChatAssistant
-                  plantName={result.plantName}
-                  messages={chatMessages}
-                  onSendMessage={handleSendMessage}
-                  isLoading={isChatLoading}
-                />
+                {results.length === 1 && !isLoading && !error && (
+                  <div className="mt-8">
+                    <ChatAssistant
+                      plantName={results[0].plantName}
+                      messages={chatMessages}
+                      onSendMessage={handleSendMessage}
+                      isLoading={isChatLoading}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </TabsContent>
+            <TabsContent value="health-check" className="mt-6">
+              <PlantHealthChecker />
+            </TabsContent>
+          </Tabs>
+
         </div>
       </main>
     </div>

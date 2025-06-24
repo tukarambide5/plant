@@ -1,5 +1,6 @@
 import type { GetPlantDetailsOutput } from '@/ai/flows/get-plant-details';
 import type { GenerateCareGuideOutput } from '@/ai/flows/generate-care-guide';
+import type { DiagnosePlantHealthOutput } from '@/ai/flows/diagnose-plant';
 
 /**
  * Represents the result of a plant identification process, used for displaying on the UI.
@@ -17,4 +18,12 @@ export type PlantResult = {
 export type ChatMessage = {
   role: 'user' | 'assistant';
   content: string;
+};
+
+/**
+ * Represents the result of a plant health diagnosis.
+ */
+export type DiagnosisResult = {
+  imageUrl: string;
+  diagnosis: DiagnosePlantHealthOutput;
 };
