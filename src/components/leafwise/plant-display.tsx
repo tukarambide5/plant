@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout, Sun, Thermometer, Droplets, Layers, Flower2 } from 'lucide-react';
+import { AlertTriangle, BookOpen, Leaf, Globe, Sparkles, Sprout, Sun, Thermometer, Droplets, Layers, Flower2, ExternalLink } from 'lucide-react';
 import type { PlantResult } from '@/types';
 import IconWithLabel from './icon-with-label';
 
@@ -30,7 +31,17 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
       <Alert variant="destructive" className="animate-in fade-in-25">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Analysis Failed</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+          {error} You can try again with a different image, or use another tool for identification.
+        </AlertDescription>
+        <div className="mt-4">
+            <Button asChild variant="outline">
+                <a href="https://lens.google.com" target="_blank" rel="noopener noreferrer">
+                    Try with Google Lens
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+            </Button>
+        </div>
       </Alert>
     );
   }
