@@ -36,13 +36,13 @@ export default function Home() {
 
         try {
           // Step 2: Identify Plant (using data URI)
-          const { plantSpecies } = await identifyPlant({ photoDataUri });
-          if (!plantSpecies || plantSpecies.toLowerCase().includes("not a plant")) {
+          const { plantName } = await identifyPlant({ photoDataUri });
+          if (!plantName || plantName.toLowerCase().includes("not a plant")) {
             throw new Error('Could not identify the plant. Please try another image.');
           }
 
           // Step 3: Get Plant Details
-          const plantDetails = await getPlantDetails({ plantName: plantSpecies });
+          const plantDetails = await getPlantDetails({ plantName: plantName });
           if (!plantDetails) throw new Error('Could not retrieve plant details.');
 
           // Step 4: Generate Care Guide

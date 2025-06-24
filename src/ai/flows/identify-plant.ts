@@ -1,11 +1,11 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for identifying plant species from an image.
+ * @fileOverview This file defines a Genkit flow for identifying a plant's common name from an image.
  *
  * - identifyPlant - The main function to trigger the plant identification flow.
  * - IdentifyPlantInput - The input type for the identifyPlant function, which includes the image as a data URI.
- * - IdentifyPlantOutput - The output type for the identifyPlant function, providing the identified plant species.
+ * - IdentifyPlantOutput - The output type for the identifyPlant function, providing the identified plant's common name.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,7 +21,7 @@ const IdentifyPlantInputSchema = z.object({
 export type IdentifyPlantInput = z.infer<typeof IdentifyPlantInputSchema>;
 
 const IdentifyPlantOutputSchema = z.object({
-  plantSpecies: z.string().describe('The identified plant species.'),
+  plantName: z.string().describe("The common name of the identified plant."),
 });
 export type IdentifyPlantOutput = z.infer<typeof IdentifyPlantOutputSchema>;
 
@@ -33,11 +33,11 @@ const identifyPlantPrompt = ai.definePrompt({
   name: 'identifyPlantPrompt',
   input: {schema: IdentifyPlantInputSchema},
   output: {schema: IdentifyPlantOutputSchema},
-  prompt: `You are an expert botanist. Please identify the plant species in the image provided.
+  prompt: `You are an expert botanist. Please identify the plant in the image provided.
 
   Image: {{media url=photoDataUri}}
   \n
-  Respond with just the plant species.`, // Just respond with the plant species, nothing else
+  Respond with just the common name of the plant.`,
 });
 
 const identifyPlantFlow = ai.defineFlow(
