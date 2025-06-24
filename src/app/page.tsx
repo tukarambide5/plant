@@ -8,7 +8,7 @@ import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Layers, HeartPulse, Leaf, Camera, Lightbulb, Sun } from 'lucide-react';
+import { Layers, HeartPulse, Leaf, Camera, Lightbulb, Sun, Beaker } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -21,6 +21,7 @@ import ARPlantPreviewer from '@/components/leafwise/ar-plant-previewer';
 import CommunityTips from '@/components/leafwise/community-tips';
 import LightMeter from '@/components/leafwise/light-meter';
 import DataManager from '@/components/leafwise/data-manager';
+import FertilizerCalculator from '@/components/leafwise/fertilizer-calculator';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -221,7 +222,7 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:grid-cols-7">
               <TabsTrigger value="identify">
                 <Layers className="h-4 w-4" />
                 Identify
@@ -245,6 +246,10 @@ export default function Home() {
               <TabsTrigger value="tips">
                 <Lightbulb className="h-4 w-4" />
                 Tips
+              </TabsTrigger>
+               <TabsTrigger value="fertilizer">
+                <Beaker className="h-4 w-4" />
+                Fertilizer
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
@@ -291,6 +296,9 @@ export default function Home() {
             </TabsContent>
             <TabsContent value="tips" className="mt-6">
               <CommunityTips />
+            </TabsContent>
+             <TabsContent value="fertilizer" className="mt-6">
+              <FertilizerCalculator />
             </TabsContent>
           </Tabs>
 
