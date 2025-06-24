@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun } from "lucide-react"
+import { Monitor, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -13,14 +13,33 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function ThemeToggleButton() {
-  const { setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  // When mounted on client, now we can show the UI
+  React.useEffect(() => setMounted(true), [])
+
+  const renderIcon = () => {
+    if (!mounted) {
+      // To avoid hydration mismatch, render a placeholder or a default icon.
+      // The system icon is a good neutral default.
+      return <Monitor className="h-[1.2rem] w-[1.2rem]" />;
+    }
+    switch (theme) {
+      case "light":
+        return <Sun className="h-[1.2rem] w-[1.2rem]" />;
+      case "dark":
+        return <Moon className="h-[1.2rem] w-[1.2rem]" />;
+      default: // 'system' or undefined
+        return <Monitor className="h-[1.2rem] w-[1.2rem]" />;
+    }
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          {renderIcon()}
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
