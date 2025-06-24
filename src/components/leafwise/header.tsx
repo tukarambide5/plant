@@ -2,6 +2,7 @@
 
 import { Sprout } from 'lucide-react';
 import Link from 'next/link';
+import { ThemeToggleButton } from './theme-toggle-button';
 
 export default function Header() {
   return (
@@ -13,6 +14,7 @@ export default function Header() {
             LeafWise
           </span>
         </Link>
+        <ThemeToggleButton />
       </div>
     </header>
   );
