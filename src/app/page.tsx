@@ -17,6 +17,44 @@ import PlantHealthChecker from '@/components/leafwise/plant-health-checker';
 import IdentificationHistory from '@/components/leafwise/identification-history';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
+// Helper function to create a smaller thumbnail from a data URI.
+// This is used to avoid exceeding the browser's localStorage quota.
+const createThumbnailDataUri = (dataUri: string, maxWidth = 128, maxHeight = 128): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round(height * (maxWidth / width));
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = Math.round(width * (maxHeight / height));
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return reject(new Error('Could not get 2D context from canvas.'));
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      // Use JPEG format for smaller file size compared to PNG.
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = (err) => {
+      reject(err);
+    };
+    img.src = dataUri;
+  });
+};
+
 export default function Home() {
   const [results, setResults] = useState<PlantResult[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -88,15 +126,24 @@ export default function Home() {
           careGuide,
         };
         setResults(prev => [...prev, newResult]);
+        
+        // Create a smaller thumbnail to avoid exceeding localStorage quota.
+        const thumbnailDataUri = await createThumbnailDataUri(photoDataUri);
 
         setHistory(prevHistory => {
-          const newHistoryItem: HistoryItem = { id: newResult.id, imageUrl: newResult.imageUrl, plantName: newResult.plantName };
+          const newHistoryItem: HistoryItem = { 
+            id: thumbnailDataUri, // Using thumbnail as ID is fine, it's unique and small.
+            imageUrl: thumbnailDataUri, 
+            plantName: newResult.plantName 
+          };
+          // Filter out previous entry if it's the same image to prevent duplicates
           const filteredHistory = prevHistory.filter(item => item.id !== newHistoryItem.id);
           const updatedHistory = [newHistoryItem, ...filteredHistory].slice(0, 5);
           try {
             window.localStorage.setItem('plantHistory', JSON.stringify(updatedHistory));
           } catch (e) {
              console.error("Failed to save history to localStorage", e);
+             // We don't toast here, as the user might not care about history failing to save.
           }
           return updatedHistory;
         });
