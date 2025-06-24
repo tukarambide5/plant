@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Layers, HeartPulse, Leaf, Camera } from 'lucide-react';
+import { Layers, HeartPulse, Leaf, Camera, Lightbulb } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -17,6 +18,7 @@ import PlantHealthChecker from '@/components/leafwise/plant-health-checker';
 import IdentificationHistory from '@/components/leafwise/identification-history';
 import GardenVisualizer from '@/components/leafwise/garden-visualizer';
 import ARPlantPreviewer from '@/components/leafwise/ar-plant-previewer';
+import CommunityTips from '@/components/leafwise/community-tips';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -217,7 +219,7 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="identify">
                 <Layers className="mr-2" />
                 Identify
@@ -233,6 +235,10 @@ export default function Home() {
               <TabsTrigger value="ar-preview">
                 <Camera className="mr-2" />
                 AR Preview
+              </TabsTrigger>
+              <TabsTrigger value="tips">
+                <Lightbulb className="mr-2" />
+                Tips
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
@@ -273,6 +279,9 @@ export default function Home() {
                 plantImageUrl={results.length > 0 ? results[0].imageUrl : null}
                 plantName={results.length > 0 ? results[0].plantName : null}
               />
+            </TabsContent>
+            <TabsContent value="tips" className="mt-6">
+              <CommunityTips />
             </TabsContent>
           </Tabs>
 
