@@ -222,34 +222,34 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7">
+            <TabsList>
               <TabsTrigger value="identify">
                 <ScanLine className="h-5 w-5" />
-                <span className="hidden sm:inline">Identify</span>
+                <span className="hidden md:inline">Identify</span>
               </TabsTrigger>
               <TabsTrigger value="health-check">
                 <HeartPulse className="h-5 w-5" />
-                <span className="hidden sm:inline">Health Check</span>
+                <span className="hidden md:inline">Health Check</span>
               </TabsTrigger>
                <TabsTrigger value="light-meter">
                 <Sun className="h-5 w-5" />
-                <span className="hidden sm:inline">Light Meter</span>
+                <span className="hidden md:inline">Light Meter</span>
               </TabsTrigger>
               <TabsTrigger value="garden">
                 <Leaf className="h-5 w-5" />
-                <span className="hidden sm:inline">My Garden</span>
+                <span className="hidden md:inline">My Garden</span>
               </TabsTrigger>
               <TabsTrigger value="ar-preview">
                 <Camera className="h-5 w-5" />
-                <span className="hidden sm:inline">AR Preview</span>
+                <span className="hidden md:inline">AR Preview</span>
               </TabsTrigger>
               <TabsTrigger value="tips">
                 <Lightbulb className="h-5 w-5" />
-                <span className="hidden sm:inline">Tips</span>
+                <span className="hidden md:inline">Tips</span>
               </TabsTrigger>
                <TabsTrigger value="fertilizer">
                 <Beaker className="h-5 w-5" />
-                <span className="hidden sm:inline">Fertilizer</span>
+                <span className="hidden md:inline">Fertilizer</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
