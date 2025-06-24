@@ -47,3 +47,11 @@ export type PlacedPlant = {
   x: number;
   y: number;
 };
+
+/**
+ * Represents the structure of the data to be exported/imported.
+ */
+export type UserData = {
+  plantHistory: HistoryItem[];
+  gardenLayout: PlacedPlant[];
+};

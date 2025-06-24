@@ -20,6 +20,7 @@ import GardenVisualizer from '@/components/leafwise/garden-visualizer';
 import ARPlantPreviewer from '@/components/leafwise/ar-plant-previewer';
 import CommunityTips from '@/components/leafwise/community-tips';
 import LightMeter from '@/components/leafwise/light-meter';
+import DataManager from '@/components/leafwise/data-manager';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -293,12 +294,15 @@ export default function Home() {
             </TabsContent>
           </Tabs>
 
-          {isClient && history.length > 0 && (
-            <div className="mt-12">
-              <IdentificationHistory
-                history={history}
-                onClearHistory={handleClearHistory}
-              />
+          {isClient && (
+            <div className="mt-12 space-y-8">
+              {history.length > 0 && (
+                <IdentificationHistory
+                  history={history}
+                  onClearHistory={handleClearHistory}
+                />
+              )}
+              <DataManager />
             </div>
           )}
         </div>
