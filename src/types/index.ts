@@ -37,3 +37,13 @@ export type HistoryItem = {
   imageUrl: string;
   plantName: string;
 };
+
+/**
+ * Represents a plant placed in the Garden Visualizer.
+ */
+export type PlacedPlant = {
+  id: string; // Unique ID for the instance of the placed plant
+  type: string; // e.g., 'Sprout', 'Flower2', 'Trees'
+  x: number;
+  y: number;
+};

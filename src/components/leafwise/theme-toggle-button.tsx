@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Monitor, Moon, Sun } from "lucide-react"
+import { Leaf, Monitor, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -30,6 +30,8 @@ export function ThemeToggleButton() {
         return <Sun className="h-[1.2rem] w-[1.2rem]" />;
       case "dark":
         return <Moon className="h-[1.2rem] w-[1.2rem]" />;
+      case "garden":
+        return <Leaf className="h-[1.2rem] w-[1.2rem]" />;
       default: // 'system' or undefined
         return <Monitor className="h-[1.2rem] w-[1.2rem]" />;
     }
@@ -49,6 +51,9 @@ export function ThemeToggleButton() {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
           Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("garden")}>
+          Garden
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
           System
