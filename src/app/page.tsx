@@ -8,7 +8,7 @@ import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Layers, HeartPulse, Leaf, Camera, Lightbulb, Sun, Beaker } from 'lucide-react';
+import { ScanLine, HeartPulse, Leaf, Camera, Lightbulb, Sun, Beaker } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -222,34 +222,34 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:grid-cols-7">
+            <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7">
               <TabsTrigger value="identify">
-                <Layers className="h-4 w-4" />
-                Identify
+                <ScanLine className="h-5 w-5" />
+                <span className="hidden sm:inline">Identify</span>
               </TabsTrigger>
               <TabsTrigger value="health-check">
-                <HeartPulse className="h-4 w-4" />
-                Health Check
+                <HeartPulse className="h-5 w-5" />
+                <span className="hidden sm:inline">Health Check</span>
               </TabsTrigger>
                <TabsTrigger value="light-meter">
-                <Sun className="h-4 w-4" />
-                Light Meter
+                <Sun className="h-5 w-5" />
+                <span className="hidden sm:inline">Light Meter</span>
               </TabsTrigger>
               <TabsTrigger value="garden">
-                <Leaf className="h-4 w-4" />
-                My Garden
+                <Leaf className="h-5 w-5" />
+                <span className="hidden sm:inline">My Garden</span>
               </TabsTrigger>
               <TabsTrigger value="ar-preview">
-                <Camera className="h-4 w-4" />
-                AR Preview
+                <Camera className="h-5 w-5" />
+                <span className="hidden sm:inline">AR Preview</span>
               </TabsTrigger>
               <TabsTrigger value="tips">
-                <Lightbulb className="h-4 w-4" />
-                Tips
+                <Lightbulb className="h-5 w-5" />
+                <span className="hidden sm:inline">Tips</span>
               </TabsTrigger>
                <TabsTrigger value="fertilizer">
-                <Beaker className="h-4 w-4" />
-                Fertilizer
+                <Beaker className="h-5 w-5" />
+                <span className="hidden sm:inline">Fertilizer</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
