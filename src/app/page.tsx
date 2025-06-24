@@ -7,7 +7,7 @@ import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Layers, HeartPulse, Leaf } from 'lucide-react';
+import { Layers, HeartPulse, Leaf, Camera } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -16,6 +16,7 @@ import ChatAssistant from '@/components/leafwise/chat-assistant';
 import PlantHealthChecker from '@/components/leafwise/plant-health-checker';
 import IdentificationHistory from '@/components/leafwise/identification-history';
 import GardenVisualizer from '@/components/leafwise/garden-visualizer';
+import ARPlantPreviewer from '@/components/leafwise/ar-plant-previewer';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -216,10 +217,10 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="identify">
                 <Layers className="mr-2" />
-                Identify Plant(s)
+                Identify
               </TabsTrigger>
               <TabsTrigger value="health-check">
                 <HeartPulse className="mr-2" />
@@ -228,6 +229,10 @@ export default function Home() {
               <TabsTrigger value="garden">
                 <Leaf className="mr-2" />
                 My Garden
+              </TabsTrigger>
+              <TabsTrigger value="ar-preview">
+                <Camera className="mr-2" />
+                AR Preview
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
@@ -262,6 +267,12 @@ export default function Home() {
             </TabsContent>
             <TabsContent value="garden" className="mt-6">
               <GardenVisualizer />
+            </TabsContent>
+            <TabsContent value="ar-preview" className="mt-6">
+              <ARPlantPreviewer 
+                plantImageUrl={results.length > 0 ? results[0].imageUrl : null}
+                plantName={results.length > 0 ? results[0].plantName : null}
+              />
             </TabsContent>
           </Tabs>
 
