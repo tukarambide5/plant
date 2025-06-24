@@ -22,6 +22,7 @@ import CommunityTips from '@/components/leafwise/community-tips';
 import LightMeter from '@/components/leafwise/light-meter';
 import DataManager from '@/components/leafwise/data-manager';
 import FertilizerCalculator from '@/components/leafwise/fertilizer-calculator';
+import StickyNotes from '@/components/leafwise/sticky-notes';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -310,6 +311,7 @@ export default function Home() {
                   onClearHistory={handleClearHistory}
                 />
               )}
+              <StickyNotes />
               <DataManager />
             </div>
           )}

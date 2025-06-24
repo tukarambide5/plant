@@ -55,3 +55,11 @@ export type UserData = {
   plantHistory: HistoryItem[];
   gardenLayout: PlacedPlant[];
 };
+
+/**
+ * Represents a single sticky note.
+ */
+export type StickyNote = {
+  id: number;
+  text: string;
+};
