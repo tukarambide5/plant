@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyPlant } from '@/ai/flows/identify-plant';
 import { getPlantDetails } from '@/ai/flows/get-plant-details';
@@ -14,15 +14,30 @@ import ImageUploader from '@/components/leafwise/image-uploader';
 import PlantDisplay from '@/components/leafwise/plant-display';
 import ChatAssistant from '@/components/leafwise/chat-assistant';
 import PlantHealthChecker from '@/components/leafwise/plant-health-checker';
-import type { PlantResult, ChatMessage } from '@/types';
+import IdentificationHistory from '@/components/leafwise/identification-history';
+import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 export default function Home() {
   const [results, setResults] = useState<PlantResult[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    try {
+      const storedHistory = window.localStorage.getItem('plantHistory');
+      if (storedHistory) {
+        setHistory(JSON.parse(storedHistory));
+      }
+    } catch (e) {
+      console.error("Failed to parse history from localStorage", e);
+    }
+  }, []);
 
   const handleImageSelect = async (files: FileList) => {
     setIsLoading(true);
@@ -66,12 +81,25 @@ export default function Home() {
         if (!careGuide) throw new Error('Could not generate a care guide.');
 
         const newResult: PlantResult = {
+          id: photoDataUri,
           imageUrl: photoDataUri,
           plantName: plantDetails.name,
           plantDetails,
           careGuide,
         };
         setResults(prev => [...prev, newResult]);
+
+        setHistory(prevHistory => {
+          const newHistoryItem: HistoryItem = { id: newResult.id, imageUrl: newResult.imageUrl, plantName: newResult.plantName };
+          const filteredHistory = prevHistory.filter(item => item.id !== newHistoryItem.id);
+          const updatedHistory = [newHistoryItem, ...filteredHistory].slice(0, 5);
+          try {
+            window.localStorage.setItem('plantHistory', JSON.stringify(updatedHistory));
+          } catch (e) {
+             console.error("Failed to save history to localStorage", e);
+          }
+          return updatedHistory;
+        });
 
       } catch (e: any) {
         const errorMessage = e.message || 'An unexpected error occurred during analysis.';
@@ -114,7 +142,16 @@ export default function Home() {
     } finally {
         setIsChatLoading(false);
     }
-};
+  };
+  
+  const handleClearHistory = () => {
+    setHistory([]);
+    try {
+      window.localStorage.removeItem('plantHistory');
+    } catch (e) {
+      console.error("Failed to clear history from localStorage", e);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -144,8 +181,8 @@ export default function Home() {
             <TabsContent value="identify" className="mt-6">
               <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} multiple={true} />
               <div className="mt-8 space-y-8">
-                {results.map((result, index) => (
-                  <PlantDisplay key={index} result={result} isLoading={false} error={null} />
+                {results.map((result) => (
+                  <PlantDisplay key={result.id} result={result} isLoading={false} error={null} />
                 ))}
 
                 {isLoading && results.length === 0 && (
@@ -173,6 +210,14 @@ export default function Home() {
             </TabsContent>
           </Tabs>
 
+          {isClient && history.length > 0 && (
+            <div className="mt-12">
+              <IdentificationHistory
+                history={history}
+                onClearHistory={handleClearHistory}
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>

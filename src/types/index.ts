@@ -6,6 +6,7 @@ import type { DiagnosePlantHealthOutput } from '@/ai/flows/diagnose-plant';
  * Represents the result of a plant identification process, used for displaying on the UI.
  */
 export type PlantResult = {
+  id: string;
   imageUrl: string;
   plantName: string;
   plantDetails: GetPlantDetailsOutput;
@@ -26,4 +27,13 @@ export type ChatMessage = {
 export type DiagnosisResult = {
   imageUrl: string;
   diagnosis: DiagnosePlantHealthOutput;
+};
+
+/**
+ * Represents a single item in the identification history.
+ */
+export type HistoryItem = {
+  id: string;
+  imageUrl: string;
+  plantName: string;
 };
