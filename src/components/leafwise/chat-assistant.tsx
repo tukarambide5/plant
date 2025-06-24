@@ -43,8 +43,8 @@ export default function ChatAssistant({ plantName, messages, onSendMessage, isLo
   return (
     <Card className="shadow-lg animate-in fade-in-50 duration-500">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-          <Bot className="h-7 w-7" />
+        <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+          <Bot className="h-6 w-6" />
           Chat with Assistant
         </CardTitle>
       </CardHeader>

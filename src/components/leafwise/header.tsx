@@ -10,7 +10,7 @@ export default function Header() {
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors w-fit">
           <Sprout className="h-7 w-7" />
-          <span className="text-2xl font-headline font-bold">
+          <span className="text-xl sm:text-2xl font-headline font-bold">
             LeafWise
           </span>
         </Link>

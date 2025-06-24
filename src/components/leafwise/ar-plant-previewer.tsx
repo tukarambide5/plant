@@ -60,8 +60,8 @@ export default function ARPlantPreviewer({ plantImageUrl, plantName }: ARPlantPr
   return (
     <Card className="shadow-lg animate-in fade-in-50 duration-500 w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-          <Camera className="h-7 w-7" />
+        <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+          <Camera className="h-6 w-6" />
           AR Plant Preview
         </CardTitle>
       </CardHeader>

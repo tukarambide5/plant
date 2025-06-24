@@ -107,8 +107,8 @@ export default function DataManager() {
   return (
     <Card className="shadow-lg animate-in fade-in-50 duration-500 w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-          <Database className="h-7 w-7" />
+        <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+          <Database className="h-6 w-6" />
           Manage Your Data
         </CardTitle>
       </CardHeader>

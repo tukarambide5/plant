@@ -221,29 +221,29 @@ export default function Home() {
           </section>
 
           <Tabs defaultValue="identify" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
               <TabsTrigger value="identify">
-                <Layers className="mr-2" />
+                <Layers className="h-4 w-4" />
                 Identify
               </TabsTrigger>
               <TabsTrigger value="health-check">
-                <HeartPulse className="mr-2" />
+                <HeartPulse className="h-4 w-4" />
                 Health Check
               </TabsTrigger>
                <TabsTrigger value="light-meter">
-                <Sun className="mr-2" />
+                <Sun className="h-4 w-4" />
                 Light Meter
               </TabsTrigger>
               <TabsTrigger value="garden">
-                <Leaf className="mr-2" />
+                <Leaf className="h-4 w-4" />
                 My Garden
               </TabsTrigger>
               <TabsTrigger value="ar-preview">
-                <Camera className="mr-2" />
+                <Camera className="h-4 w-4" />
                 AR Preview
               </TabsTrigger>
               <TabsTrigger value="tips">
-                <Lightbulb className="mr-2" />
+                <Lightbulb className="h-4 w-4" />
                 Tips
               </TabsTrigger>
             </TabsList>

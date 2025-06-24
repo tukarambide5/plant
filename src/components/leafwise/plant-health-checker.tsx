@@ -104,8 +104,8 @@ const DiagnosisDisplay = ({ result }: { result: DiagnosisResult }) => {
                 </div>
                 <div className="p-6">
                     <CardHeader className="p-0 mb-4">
-                        <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-                            <Stethoscope className="h-7 w-7" />
+                        <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+                            <Stethoscope className="h-6 w-6" />
                             Health Report
                         </CardTitle>
                     </CardHeader>

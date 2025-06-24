@@ -19,8 +19,8 @@ export default function IdentificationHistory({ history, onClearHistory }: Ident
   return (
     <Card className="shadow-lg animate-in fade-in-50 duration-500">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-          <History className="h-7 w-7" />
+        <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+          <History className="h-6 w-6" />
           Recent Identifications
         </CardTitle>
         <Button variant="ghost" size="sm" onClick={onClearHistory}>

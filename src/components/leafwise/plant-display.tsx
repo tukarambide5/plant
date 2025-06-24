@@ -84,7 +84,7 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
           <div className="p-6 flex flex-col justify-center">
             <CardHeader className="p-0 mb-6">
               <p className="text-sm font-medium text-accent font-body tracking-wider uppercase">Identified Plant</p>
-              <CardTitle className="text-4xl font-headline text-primary">{plantName}</CardTitle>
+              <CardTitle className="text-3xl md:text-4xl font-headline text-primary">{plantName}</CardTitle>
             </CardHeader>
             <CardContent className="p-0 grid gap-4">
               <IconWithLabel icon={Leaf} label="Category" value={plantDetails.category} />
@@ -97,8 +97,8 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
-            <BookOpen className="h-7 w-7" />
+          <CardTitle className="flex items-center gap-3 font-headline text-2xl md:text-3xl text-primary">
+            <BookOpen className="h-6 w-6" />
             Care Guide
           </CardTitle>
         </CardHeader>
@@ -106,7 +106,7 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
            <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[150px] font-semibold text-foreground">Care Aspect</TableHead>
+                <TableHead className="font-semibold text-foreground">Care Aspect</TableHead>
                 <TableHead className="font-semibold text-foreground">Recommendations</TableHead>
               </TableRow>
             </TableHeader>
