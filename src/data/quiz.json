@@ -1,0 +1,35 @@
+
+[
+  {
+    "id": 1,
+    "imageUrl": "https://placehold.co/400x400.png",
+    "dataAiHint": "snake plant",
+    "options": ["Monstera Deliciosa", "Snake Plant", "Fiddle Leaf Fig", "Pothos"],
+    "answer": "Snake Plant",
+    "feedback": "Correct! The Snake Plant (Dracaena trifasciata) is known for its hardiness and air-purifying qualities."
+  },
+  {
+    "id": 2,
+    "imageUrl": "https://placehold.co/400x400.png",
+    "dataAiHint": "monstera deliciosa",
+    "options": ["Monstera Deliciosa", "ZZ Plant", "Bird of Paradise", "Calathea"],
+    "answer": "Monstera Deliciosa",
+    "feedback": "You got it! The Monstera Deliciosa is famous for its iconic split leaves."
+  },
+  {
+    "id": 3,
+    "imageUrl": "https://placehold.co/400x400.png",
+    "dataAiHint": "fiddle leaf fig",
+    "options": ["Rubber Plant", "Pothos", "Fiddle Leaf Fig", "Spider Plant"],
+    "answer": "Fiddle Leaf Fig",
+    "feedback": "That's right! The Fiddle Leaf Fig (Ficus lyrata) is a stylish but notoriously fussy houseplant."
+  },
+  {
+    "id": 4,
+    "imageUrl": "https://placehold.co/400x400.png",
+    "dataAiHint": "succulent plant",
+    "options": ["Fern", "Orchid", "Bonsai Tree", "Echeveria"],
+    "answer": "Echeveria",
+    "feedback": "Correct! Echeveria is a popular type of succulent known for its beautiful rosette shape."
+  }
+]
