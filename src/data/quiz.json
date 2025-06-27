@@ -2,7 +2,7 @@
 [
   {
     "id": 1,
-    "imageUrl": "https://placehold.co/400x400.png",
+    "imageUrl": "https://placehold.co/400x400/A1C1A1/3F704F.png",
     "dataAiHint": "snake plant",
     "options": ["Monstera Deliciosa", "Snake Plant", "Fiddle Leaf Fig", "Pothos"],
     "answer": "Snake Plant",
@@ -10,7 +10,7 @@
   },
   {
     "id": 2,
-    "imageUrl": "https://placehold.co/400x400.png",
+    "imageUrl": "https://placehold.co/400x400/789A78/FFFFFF.png",
     "dataAiHint": "monstera deliciosa",
     "options": ["Monstera Deliciosa", "ZZ Plant", "Bird of Paradise", "Calathea"],
     "answer": "Monstera Deliciosa",
@@ -18,7 +18,7 @@
   },
   {
     "id": 3,
-    "imageUrl": "https://placehold.co/400x400.png",
+    "imageUrl": "https://placehold.co/400x400/8FB98F/3F704F.png",
     "dataAiHint": "fiddle leaf fig",
     "options": ["Rubber Plant", "Pothos", "Fiddle Leaf Fig", "Spider Plant"],
     "answer": "Fiddle Leaf Fig",
@@ -26,7 +26,7 @@
   },
   {
     "id": 4,
-    "imageUrl": "https://placehold.co/400x400.png",
+    "imageUrl": "https://placehold.co/400x400/BDB9C7/FFFFFF.png",
     "dataAiHint": "succulent plant",
     "options": ["Fern", "Orchid", "Bonsai Tree", "Echeveria"],
     "answer": "Echeveria",
