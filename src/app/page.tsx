@@ -8,7 +8,7 @@ import { getPlantDetails } from '@/ai/flows/get-plant-details';
 import { generateCareGuide } from '@/ai/flows/generate-care-guide';
 import { chatWithAssistant } from '@/ai/flows/chat-with-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScanLine, HeartPulse, Leaf, Camera, Lightbulb, Sun, Beaker, Puzzle } from 'lucide-react';
+import { ScanLine, HeartPulse, Leaf, Camera, Lightbulb, Sun, Beaker } from 'lucide-react';
 
 import Header from '@/components/leafwise/header';
 import ImageUploader from '@/components/leafwise/image-uploader';
@@ -23,7 +23,6 @@ import LightMeter from '@/components/leafwise/light-meter';
 import DataManager from '@/components/leafwise/data-manager';
 import FertilizerCalculator from '@/components/leafwise/fertilizer-calculator';
 import StickyNotes from '@/components/leafwise/sticky-notes';
-import PlantQuiz from '@/components/leafwise/plant-quiz';
 import type { PlantResult, ChatMessage, HistoryItem } from '@/types';
 
 // Helper function to create a smaller thumbnail from a data URI.
@@ -253,10 +252,6 @@ export default function Home() {
                 <Beaker className="h-5 w-5" />
                 <span className="hidden md:inline">Fertilizer</span>
               </TabsTrigger>
-              <TabsTrigger value="quiz">
-                <Puzzle className="h-5 w-5" />
-                <span className="hidden md:inline">Quiz</span>
-              </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
               <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} multiple={true} />
@@ -305,9 +300,6 @@ export default function Home() {
             </TabsContent>
              <TabsContent value="fertilizer" className="mt-6">
               <FertilizerCalculator />
-            </TabsContent>
-            <TabsContent value="quiz" className="mt-6">
-              <PlantQuiz />
             </TabsContent>
           </Tabs>
 
