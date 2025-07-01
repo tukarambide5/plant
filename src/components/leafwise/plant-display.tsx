@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -113,13 +114,13 @@ export default function PlantDisplay({ isLoading, result, error }: PlantDisplayP
             <TableBody>
               {careItems.map(({ icon: Icon, label, points }) => (
                 <TableRow key={label}>
-                  <TableCell className="font-medium align-top">
+                  <TableCell className="font-medium align-top py-4">
                     <div className="flex items-center gap-2">
                       <Icon className="h-5 w-5 text-accent flex-shrink-0" />
                       <span>{label}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-4">
                     <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                       {points.map((point, index) => (
                         <li key={index}>{point}</li>
@@ -179,9 +180,9 @@ const LoadingSkeleton = () => (
       <CardContent className="pt-2">
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div className="flex items-start gap-4" key={i}>
-              <div className="w-[120px] space-y-2">
-                <Skeleton className="h-5 w-1/3" />
+            <div className="flex items-start gap-4 py-2" key={i}>
+              <div className="w-[120px] flex-shrink-0">
+                <Skeleton className="h-5 w-20" />
               </div>
               <div className="w-full space-y-2">
                 <Skeleton className="h-4 w-full" />

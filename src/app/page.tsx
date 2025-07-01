@@ -86,93 +86,82 @@ export default function Home() {
   }, []);
 
   const handleImageSelect = async (files: FileList) => {
+    if (files.length === 0) {
+      return;
+    }
+    const file = files[0];
+
     setIsLoading(true);
     setResults([]);
     setError(null);
     setChatMessages([]);
 
-    if (files.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-    
-    const fileArray = Array.from(files);
-    let hasErrorOccurred = false;
+    try {
+      const photoDataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
 
-    for (const file of fileArray) {
-      if (hasErrorOccurred) break;
-
-      try {
-        const photoDataUri = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-        });
-
-        const { plantName } = await identifyPlant({ photoDataUri });
-        if (!plantName || plantName.toLowerCase().includes("not a plant")) {
-          throw new Error(`Could not identify the plant in "${file.name}". Please try another image.`);
-        }
-
-        const plantDetails = await getPlantDetails({ plantName: plantName });
-        if (!plantDetails) throw new Error('Could not retrieve plant details.');
-
-        const careGuide = await generateCareGuide({
-          plantName: plantDetails.name,
-          category: plantDetails.category,
-          nativeHabitat: plantDetails.nativeHabitat,
-          commonUses: plantDetails.commonUses,
-        });
-        if (!careGuide) throw new Error('Could not generate a care guide.');
-
-        const newResult: PlantResult = {
-          id: photoDataUri,
-          imageUrl: photoDataUri,
-          plantName: plantDetails.name,
-          plantDetails,
-          careGuide,
-        };
-        setResults(prev => [...prev, newResult]);
-        
-        // Create a smaller thumbnail to avoid exceeding localStorage quota.
-        const thumbnailDataUri = await createThumbnailDataUri(photoDataUri);
-
-        setHistory(prevHistory => {
-          const newHistoryItem: HistoryItem = { 
-            id: thumbnailDataUri, // Using thumbnail as ID is fine, it's unique and small.
-            imageUrl: thumbnailDataUri, 
-            plantName: newResult.plantName 
-          };
-          // Filter out previous entry if it's the same image to prevent duplicates
-          const filteredHistory = prevHistory.filter(item => item.id !== newHistoryItem.id);
-          const updatedHistory = [newHistoryItem, ...filteredHistory].slice(0, 5);
-          try {
-            window.localStorage.setItem('plantHistory', JSON.stringify(updatedHistory));
-          } catch (e) {
-             console.error("Failed to save history to localStorage", e);
-             // We don't toast here, as the user might not care about history failing to save.
-          }
-          return updatedHistory;
-        });
-
-      } catch (e: any) {
-        const errorMessage = e.message || 'An unexpected error occurred during analysis.';
-        setError(errorMessage);
-        toast({
-          title: 'Error',
-          description: errorMessage,
-          variant: 'destructive',
-        });
-        hasErrorOccurred = true; // Stop processing further files
+      const { plantName } = await identifyPlant({ photoDataUri });
+      if (!plantName || plantName.toLowerCase().includes("not a plant")) {
+        throw new Error(`Could not identify the plant in "${file.name}". Please try another image.`);
       }
+
+      const plantDetails = await getPlantDetails({ plantName: plantName });
+      if (!plantDetails) throw new Error('Could not retrieve plant details.');
+
+      const careGuide = await generateCareGuide({
+        plantName: plantDetails.name,
+        category: plantDetails.category,
+        nativeHabitat: plantDetails.nativeHabitat,
+        commonUses: plantDetails.commonUses,
+      });
+      if (!careGuide) throw new Error('Could not generate a care guide.');
+
+      const newResult: PlantResult = {
+        id: photoDataUri,
+        imageUrl: photoDataUri,
+        plantName: plantDetails.name,
+        plantDetails,
+        careGuide,
+      };
+      setResults([newResult]);
+      
+      const thumbnailDataUri = await createThumbnailDataUri(photoDataUri);
+
+      setHistory(prevHistory => {
+        const newHistoryItem: HistoryItem = { 
+          id: thumbnailDataUri,
+          imageUrl: thumbnailDataUri, 
+          plantName: newResult.plantName 
+        };
+        const filteredHistory = prevHistory.filter(item => item.id !== newHistoryItem.id);
+        const updatedHistory = [newHistoryItem, ...filteredHistory].slice(0, 5);
+        try {
+          window.localStorage.setItem('plantHistory', JSON.stringify(updatedHistory));
+        } catch (e) {
+            console.error("Failed to save history to localStorage", e);
+        }
+        return updatedHistory;
+      });
+
+    } catch (e: any) {
+      const errorMessage = e.message || 'An unexpected error occurred during analysis.';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
   
   const handleSendMessage = async (message: string) => {
-    if (results.length !== 1) return;
+    if (results.length === 0) return;
 
     setIsChatLoading(true);
     const newUserMessage: ChatMessage = { role: 'user', content: message };
@@ -207,6 +196,8 @@ export default function Home() {
       console.error("Failed to clear history from localStorage", e);
     }
   };
+
+  const activePlant = results[0];
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -254,29 +245,24 @@ export default function Home() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="identify" className="mt-6">
-              <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} multiple={true} />
+              <ImageUploader onImageSelect={handleImageSelect} isLoading={isLoading} multiple={false} />
               <div className="mt-8 space-y-8">
-                {results.map((result) => (
-                  <PlantDisplay key={result.id} result={result} isLoading={false} error={null} />
-                ))}
-
-                {isLoading && results.length === 0 && (
-                   <PlantDisplay isLoading={true} result={null} error={null} />
-                )}
-                
-                {error && !isLoading && (
+                {isLoading ? (
+                  <PlantDisplay isLoading={true} result={null} error={null} />
+                ) : error ? (
                   <PlantDisplay isLoading={false} result={null} error={error} />
-                )}
-
-                {results.length === 1 && !isLoading && !error && (
-                  <div className="mt-8">
+                ) : activePlant ? (
+                  <>
+                    <PlantDisplay result={activePlant} isLoading={false} error={null} />
                     <ChatAssistant
-                      plantName={results[0].plantName}
+                      plantName={activePlant.plantName}
                       messages={chatMessages}
                       onSendMessage={handleSendMessage}
                       isLoading={isChatLoading}
                     />
-                  </div>
+                  </>
+                ) : (
+                  <PlantDisplay isLoading={false} result={null} error={null} />
                 )}
               </div>
             </TabsContent>
@@ -291,8 +277,8 @@ export default function Home() {
             </TabsContent>
             <TabsContent value="ar-preview" className="mt-6">
               <ARPlantPreviewer 
-                plantImageUrl={results.length > 0 ? results[0].imageUrl : null}
-                plantName={results.length > 0 ? results[0].plantName : null}
+                plantImageUrl={activePlant?.imageUrl ?? null}
+                plantName={activePlant?.plantName ?? null}
               />
             </TabsContent>
             <TabsContent value="tips" className="mt-6">

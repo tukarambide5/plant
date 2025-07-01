@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, type ChangeEvent, type DragEvent } from 'react';
@@ -99,10 +100,10 @@ export default function ImageUploader({ onImageSelect, isLoading, multiple = fal
             <div className="bg-primary/10 p-4 rounded-full">
               <UploadCloud className="h-8 w-8 text-primary" />
             </div>
-            <p className="font-semibold text-lg mt-2">Drag & drop your image(s) here</p>
+            <p className="font-semibold text-lg mt-2">Drag & drop your image here</p>
             <p className="text-muted-foreground">or</p>
             <Button onClick={handleBrowseClick} disabled={isLoading} className="font-bold">
-              Browse Files
+              Browse File
             </Button>
             <p className="text-xs text-muted-foreground mt-2">High-quality JPG, PNG, or WEBP recommended.</p>
           </>

@@ -1,11 +1,13 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, VideoOff } from 'lucide-react';
+import { Camera, VideoOff, Loader2 } from 'lucide-react';
 
 type ARPlantPreviewerProps = {
   plantImageUrl: string | null;
@@ -15,47 +17,49 @@ type ARPlantPreviewerProps = {
 export default function ARPlantPreviewer({ plantImageUrl, plantName }: ARPlantPreviewerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isCameraStarting, setIsCameraStarting] = useState(false);
   const { toast } = useToast();
 
+  const handleEnableCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Not Supported',
+        description: 'Your browser does not support camera access.',
+      });
+      return;
+    }
+
+    setIsCameraStarting(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setHasCameraPermission(true);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Access Denied',
+        description: 'Please enable camera permissions in your browser settings to use this feature.',
+      });
+    } finally {
+      setIsCameraStarting(false);
+    }
+  };
+
   useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Not Supported',
-          description: 'Your browser does not support camera access.',
-        });
-        return;
-      }
-      
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
-        });
-      }
-    };
-
-    getCameraPermission();
-    
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [toast]);
+  }, []);
 
   return (
     <Card className="shadow-lg animate-in fade-in-50 duration-500 w-full">
@@ -72,6 +76,16 @@ export default function ARPlantPreviewer({ plantImageUrl, plantName }: ARPlantPr
         <div className="relative w-full aspect-video bg-secondary rounded-lg overflow-hidden flex items-center justify-center">
           <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
           
+          {hasCameraPermission === null && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-center p-4">
+              <p className="text-lg font-semibold mb-4">Preview your plant in AR</p>
+              <Button onClick={handleEnableCamera} disabled={isCameraStarting}>
+                {isCameraStarting ? <Loader2 className="mr-2 animate-spin" /> : <Camera className="mr-2" />}
+                Enable Camera
+              </Button>
+            </div>
+          )}
+
           {hasCameraPermission === false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-center p-4">
               <VideoOff className="h-12 w-12 text-destructive mb-4" />
