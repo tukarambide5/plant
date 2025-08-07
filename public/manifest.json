@@ -1,0 +1,16 @@
+{
+  "name": "LeafWise",
+  "short_name": "LeafWise",
+  "description": "Identify plants and get care guides with a snapshot.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1F5F2",
+  "theme_color": "#4A6C53"
+}
